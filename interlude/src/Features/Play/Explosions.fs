@@ -19,6 +19,7 @@ type private Explosion =
         Color: int
         IsRelease: bool
         Time: ChartTime
+        Delta: float32
     }
     static member Nothing =
         {
@@ -26,6 +27,7 @@ type private Explosion =
             Color = 0
             IsRelease = false
             Time = -Time.infinity
+            Delta = 0f
         }
 
 type Explosions(keys: int, noteskin: NoteskinConfig, state: PlayState) =
@@ -73,24 +75,26 @@ type Explosions(keys: int, noteskin: NoteskinConfig, state: PlayState) =
 
     let mutable explosion_pool_pointer = 0
 
-    let add_note_explosion (column: int, color: int) =
+    let add_note_explosion (column: int, color: int, delta: float32) =
         explosion_pool.[explosion_pool_pointer] <-
             {
                 Column = column
                 Color = color
                 IsRelease = false
                 Time = state.CurrentChartTime()
+                Delta = delta
             }
 
         explosion_pool_pointer <- (explosion_pool_pointer + 1) % EXPLOSION_POOL_SIZE
 
-    let add_release_explosion (column: int, color: int) =
+    let add_release_explosion (column: int, color: int, delta: float32) =
         explosion_pool.[explosion_pool_pointer] <-
             {
                 Column = column
                 Color = color
                 IsRelease = true
                 Time = state.CurrentChartTime()
+                Delta = delta
             }
 
         explosion_pool_pointer <- (explosion_pool_pointer + 1) % EXPLOSION_POOL_SIZE
@@ -136,7 +140,7 @@ type Explosions(keys: int, noteskin: NoteskinConfig, state: PlayState) =
                 | ExplosionColors.Note -> int state.WithColors.Colors.[ev.Index].Data.[ev.Column]
                 | ExplosionColors.Judgements -> match e.Judgement with Some (j, _) -> j | None -> -1
 
-            add_note_explosion (ev.Column, color)
+            add_note_explosion (ev.Column, color, float32 e.Delta)
 
         | Release e when holding.[ev.Column] ->
             let color =
@@ -144,7 +148,7 @@ type Explosions(keys: int, noteskin: NoteskinConfig, state: PlayState) =
                 | ExplosionColors.Note -> hold_colors.[ev.Column]
                 | ExplosionColors.Judgements -> match e.Judgement with Some (j, _) -> j | None -> -1
 
-            add_release_explosion (ev.Column, color)
+            add_release_explosion (ev.Column, color, float32 e.Delta)
             holding.[ev.Column] <- false
 
         | DropHold ->
@@ -153,7 +157,7 @@ type Explosions(keys: int, noteskin: NoteskinConfig, state: PlayState) =
                 | ExplosionColors.Note -> hold_colors.[ev.Column]
                 | ExplosionColors.Judgements -> -1
 
-            add_release_explosion (ev.Column, color)
+            add_release_explosion (ev.Column, color, float32 0)
             holding.[ev.Column] <- false
 
         | _ -> ()
@@ -311,7 +315,8 @@ type Explosions(keys: int, noteskin: NoteskinConfig, state: PlayState) =
                                      column_width,
                                      column_width
                                  )
-                                 .Translate(0.0f, -column_width * noteskin.NoteExplosionSettings.Offset + float32 options.ScrollSpeed.Value))
+                                 .Translate(0.0f, -column_width * noteskin.NoteExplosionSettings.Offset))
+                                 .Translate(0.0f, -column_width * noteskin.NoteExplosionSettings.Offset + ex.Delta * float32 options.ScrollSpeed.Value)
                             .Expand((noteskin.NoteExplosionSettings.Scale - 1.0f) * column_width * 0.5f)
                             .Expand(noteskin.NoteExplosionSettings.ExpandAmount * expand * column_width)
 
