@@ -370,13 +370,20 @@ module SelectPreviews =
 
     let private create_custom_image (config: HudConfig) : SelectPreview =
         let texture = Content.Texture "custom-image"
-
         None,
         fun (bounds: Rect) ->
         Render.tex_quad
             ((Sprite.fill bounds texture).AsQuad)
             Color.White.AsQuad
             (Sprite.pick_texture (1, 0) texture)
+    let private create_notecount (config: HudConfig) : SelectPreview =
+        None,
+        fun (bounds: Rect) ->
+            Text.fill (Style.font, "4K | 1727 Notes | 20 holds", bounds, Color.White, Alignment.CENTER)
+    let private create_hudgraph (config: HudConfig) : SelectPreview =
+        None,
+        fun (bounds: Rect) ->
+            Text.fill (Style.font, "wip", bounds, Color.White, Alignment.CENTER)
 
     let create (config: HudConfig) (element: HudElement) : SelectPreview =
         match element with
@@ -394,3 +401,5 @@ module SelectPreviews =
         | HudElement.InputMeter -> create_input_meter config
         | HudElement.KeysPerSecond -> create_kps config
         | HudElement.CustomImage -> create_custom_image config
+        | HudElement.Notecount -> create_notecount config
+        | HudElement.HudGraph -> create_hudgraph config

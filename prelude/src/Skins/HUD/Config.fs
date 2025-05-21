@@ -22,6 +22,9 @@ type HudElement =
     | InputMeter
     | KeysPerSecond
     | CustomImage
+    | Notecount
+    | HudGraph
+
     static member FULL_LIST =
         [
             Accuracy
@@ -38,6 +41,8 @@ type HudElement =
             InputMeter
             KeysPerSecond
             CustomImage
+            Notecount
+            HudGraph
         ]
 
 [<RequireQualifiedAccess>]
@@ -157,6 +162,24 @@ type HudConfig =
         ComboUseFont: bool
         ComboFontSpacing: float32
 
+        HudGraphEnabled: bool
+        HudGraphPosition: HudPosition
+        HudGraphHitSize: float32
+        HudGraphScrollSpeed: float32
+        HudGraphWindowOpacity: float32
+        HudGraphHitOpacity: float32
+        HudGraphShowIncomingNotes: bool
+        HudGraphDrawBorder: bool
+        HudGraphTransparent: bool
+
+        NotecountEnabled: bool
+        NotecountPosition: HudPosition
+        NotecountLampColors: bool
+        NotecountGrowth: float32
+        NotecountPop: float32
+        NotecountUseFont: bool
+        NotecountFontSpacing: float32 
+
         SkipButtonPosition: HudPosition
         SkipButtonBackground: BackgroundTextureOptions
 
@@ -173,6 +196,7 @@ type HudConfig =
         EarlyLateMeterEnabled: bool
         EarlyLateMeterPosition: HudPosition
         EarlyLateMeterDuration: float32<ms / rate>
+        EarlyLateMeterMillisecondTolerance: float32<ms / rate>
         EarlyLateMeterUseTexture: bool
         EarlyLateMeterFrameTime: float32<ms / rate>
         EarlyLateMeterEarlyText: string
@@ -295,6 +319,39 @@ type HudConfig =
             ComboUseFont = false
             ComboFontSpacing = 0.0f
 
+
+            HudGraphEnabled = true
+            HudGraphPosition =
+                {
+                    RelativeToPlayfield = true
+                    Left = -100.0f, 0.5f
+                    Top = -65.0f, 0.5f
+                    Right = 100.0f, 0.5f
+                    Bottom = -5.0f, 0.5f
+                }
+            HudGraphHitSize = 100.0f
+            HudGraphScrollSpeed = 5f
+            HudGraphWindowOpacity = 100f
+            HudGraphHitOpacity = 100f
+            HudGraphShowIncomingNotes = true
+            HudGraphDrawBorder = true
+            HudGraphTransparent = false
+
+            NotecountEnabled = true
+            NotecountPosition =
+                {
+                    RelativeToPlayfield = true
+                    Left = -100.0f, 0.5f
+                    Top = -65.0f, 0.5f
+                    Right = 100.0f, 0.5f
+                    Bottom = -50.0f, 0.5f
+                }
+            NotecountLampColors = true
+            NotecountGrowth = 0.01f
+            NotecountPop = 5.0f
+            NotecountUseFont = false
+            NotecountFontSpacing = 0.0f
+
             SkipButtonPosition =
                 {
                     RelativeToPlayfield = true
@@ -338,6 +395,7 @@ type HudConfig =
                     Bottom = -150.0f, 0.5f
                 }
             EarlyLateMeterDuration = 200.0f<ms / rate>
+            EarlyLateMeterMillisecondTolerance = 22.50f<ms / rate>
             EarlyLateMeterUseTexture = false
             EarlyLateMeterFrameTime = 20.0f<ms / rate>
             EarlyLateMeterEarlyText = "Early"

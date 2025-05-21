@@ -307,11 +307,11 @@ type Explosions(keys: int, noteskin: NoteskinConfig, state: PlayState) =
                              Rect
                                  .FromSize(
                                      this.Bounds.Left + column_positions.[ex.Column],
-                                     this.Bounds.Bottom - column_width - options.HitPosition.Value,
+                                     this.Bounds.Bottom - column_width,
                                      column_width,
                                      column_width
                                  )
-                                 .Translate(0.0f, -column_width * noteskin.NoteExplosionSettings.Offset))
+                                 .Translate(0.0f, -column_width * noteskin.NoteExplosionSettings.Offset + float32 options.ScrollSpeed.Value))
                             .Expand((noteskin.NoteExplosionSettings.Scale - 1.0f) * column_width * 0.5f)
                             .Expand(noteskin.NoteExplosionSettings.ExpandAmount * expand * column_width)
 
