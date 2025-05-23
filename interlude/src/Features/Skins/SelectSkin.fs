@@ -152,14 +152,15 @@ type private HUDButton(id: string, meta: SkinMetadata, on_switch: unit -> unit, 
 module SkinActions =
 
     let edit_hud (on_exit: unit -> unit) : unit =
-        if
-            SelectedChart.WITH_COLORS.IsSome
-            && Screen.change_new
-                (fun () -> EditHudScreen.edit_hud_screen (SelectedChart.CHART.Value, SelectedChart.WITH_COLORS.Value, on_exit))
-                ScreenType.EditHud
-                Transitions.Default
-        then
-            Menu.Exit()
+        SelectedChart.if_loaded(fun info ->
+            if
+                Screen.change_new
+                    (fun () -> EditHudScreen.edit_hud_screen (info, on_exit))
+                    ScreenType.EditHud
+                    Transitions.Default
+            then
+                Menu.Exit()
+        )
 
     let edit_or_extract_noteskin () : unit =
         let noteskin = Content.Noteskin
@@ -189,7 +190,7 @@ module SkinActions =
 type SelectSkinsPage() =
     inherit Page()
 
-    let preview = SkinPreview(SkinPreview.LEFT_HAND_SIDE 0.35f)
+    let preview = new SkinPreview(SkinPreview.LEFT_HAND_SIDE 0.35f)
 
     let noteskin_grid =
         GridFlowContainer<NoteskinButton>(70.0f, 1)
@@ -224,6 +225,7 @@ type SelectSkinsPage() =
             hud_grid |* hb
 
     override this.Content() =
+        this.DisposeOnDestroy(preview)
         refresh ()
 
         let left_info =
@@ -282,7 +284,4 @@ type SelectSkinsPage() =
 
     override this.Title = %"skins"
 
-    override this.OnDestroy() = preview.Destroy()
-
-    override this.OnClose() = ()
     override this.OnReturnFromNestedPage() = refresh()

@@ -14,6 +14,8 @@ open Interlude.Features.Gameplay
 open Interlude.Features.Online
 open Interlude.Web.Shared.Requests
 
+type LeaderboardScore = Charts.Scores.Leaderboard.Score
+
 module OnlineScores =
 
     [<RequireQualifiedAccess>]
@@ -78,7 +80,7 @@ module OnlineScores =
                             ScoreProcessor.run
                                 req.Ruleset
                                 with_mods.Keys
-                                (StoredReplayProvider replay_data)
+                                (StoredReplay replay_data)
                                 with_mods.Notes
                                 score.Rate
 
@@ -100,7 +102,7 @@ module OnlineScores =
                                 Grade = Grade.calculate req.Ruleset.Grades scoring.Accuracy
 
                                 Rating = rating
-                                Physical = Performance.calculate rating scoring
+                                Performance = Performance.calculate rating scoring
 
                                 ImportedFromOsu = false
                                 IsFailed = false

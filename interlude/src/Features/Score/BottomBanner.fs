@@ -7,7 +7,6 @@ open Percyqaz.Flux.UI
 open Prelude
 open Prelude.Gameplay.Rulesets
 open Prelude.Data.User
-open Prelude.Skins.Noteskins
 open Interlude
 open Interlude.Content
 open Interlude.UI
@@ -99,7 +98,7 @@ type BottomBanner(score_info: ScoreInfo, played_just_now: bool, graph: ScoreGrap
             .Position(Position.ShrinkPercentL(0.35f).ShrinkX(20.0f).ShrinkL(10.0f).SliceB(10.0f, 50.0f))
             .With(
                 InlaidButton(%"score.graph.settings", fun () ->
-                    ScoreGraphSettingsPage(graph).Show()
+                    ScoreGraphSettingsPage(score_info.WithMods.Keys, graph.ApplyColumnFilter).Show()
                 )
                     .Icon(Icons.EDIT_2)
                     .Position(Position.GridX(1, 4, 30.0f)),
@@ -112,7 +111,7 @@ type BottomBanner(score_info: ScoreInfo, played_just_now: bool, graph: ScoreGrap
                     .Position(Position.GridX(2, 4, 30.0f)),
 
                 InlaidButton(%"score.watch_replay", fun () ->
-                    Gameplay.watch_replay (score_info, NoteColors.apply Content.NoteskinConfig.NoteColors score_info.WithMods)
+                    Gameplay.watch_replay(score_info)
                 )
                     .Icon(Icons.FILM)
                     .Position(Position.GridX(3, 4, 30.0f)),

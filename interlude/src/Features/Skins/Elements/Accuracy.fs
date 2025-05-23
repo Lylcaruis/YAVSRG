@@ -1,6 +1,5 @@
 ﻿namespace Interlude.Features.Play.HUD
 
-open Percyqaz.Common
 open Percyqaz.Flux.Graphics
 open Percyqaz.Flux.UI
 open Prelude
@@ -56,9 +55,9 @@ type Accuracy(config: HudConfig, state: PlayState) =
 
     override this.Init(parent) =
         if config.AccuracyGradeColors then
-            state.SubscribeEvents(fun _ ->
+            state.Subscribe(fun _ ->
                 color.Target <- Grade.calculate grades state.Scoring.Accuracy |> state.Ruleset.GradeColor
-            )
+            ) |> ignore
 
         if not config.AccuracyUseFont then
             this

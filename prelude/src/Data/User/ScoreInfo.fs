@@ -31,7 +31,7 @@ type ScoreInfo =
         mutable Grade: int
 
         Rating: Difficulty
-        Physical: float32
+        Performance: float32
 
         ImportedFromOsu: bool
         IsFailed: bool
@@ -40,7 +40,7 @@ type ScoreInfo =
         with get () = this.Scoring.Ruleset
         and set (ruleset) =
             let scoring =
-                ScoreProcessor.run ruleset this.WithMods.Keys (StoredReplayProvider this.Replay) this.WithMods.Notes this.Rate
+                ScoreProcessor.run ruleset this.WithMods.Keys (StoredReplay this.Replay) this.WithMods.Notes this.Rate
 
             this.Scoring <- scoring
             this.Lamp <- Lamp.calculate ruleset.Lamps scoring.JudgementCounts scoring.ComboBreaks
@@ -48,7 +48,7 @@ type ScoreInfo =
 
     member this.WithRuleset (ruleset: Ruleset) =
         let scoring =
-            ScoreProcessor.run ruleset this.WithMods.Keys (StoredReplayProvider this.Replay) this.WithMods.Notes this.Rate
+            ScoreProcessor.run ruleset this.WithMods.Keys (StoredReplay this.Replay) this.WithMods.Notes this.Rate
 
         { this with
             Scoring = scoring
@@ -61,8 +61,8 @@ type ScoreInfo =
 
     member this.ModStatus = this.WithMods.Status
 
-    member this.ModString() =
-        ModState.format (this.Rate, this.Mods)
+    member this.ModString() = ModState.format (this.Rate, this.Mods)
+    member this.Shorthand = sprintf "%s | %s" this.Scoring.FormattedAccuracy (this.Ruleset.LampName this.Lamp)
 
 module ScoreInfo =
 
@@ -71,7 +71,7 @@ module ScoreInfo =
         let replay_data = score.Replay |> Replay.decompress_bytes
 
         let scoring =
-            ScoreProcessor.run ruleset with_mods.Keys (StoredReplayProvider replay_data) with_mods.Notes score.Rate
+            ScoreProcessor.run ruleset with_mods.Keys (StoredReplay replay_data) with_mods.Notes score.Rate
 
         let difficulty = Difficulty.calculate(score.Rate, with_mods.Notes)
 
@@ -90,7 +90,7 @@ module ScoreInfo =
             Grade = Grade.calculate ruleset.Grades scoring.Accuracy
 
             Rating = difficulty
-            Physical = Performance.calculate difficulty scoring
+            Performance = Performance.calculate difficulty scoring
 
             ImportedFromOsu = score.IsImported
             IsFailed = score.IsFailed

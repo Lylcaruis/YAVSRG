@@ -23,15 +23,17 @@ type InputMeter(config: HudConfig, state: PlayState) =
     let lerp_color (percentage: float) (a: byte) (b: byte) =
         (float (b - a) * percentage + float a) |> int |> max 0 |> min 255
 
-    do
+    override this.Init(parent: Widget) =
         if config.InputMeterJudgementColors then
-            state.SubscribeEvents (fun ev ->
+            state.Subscribe(fun ev ->
                 match ev.Action.Judgement with
                 | Some (j, _) ->
                     colors.[ev.Column] <- state.Ruleset.JudgementColor j
                     color_fades.[ev.Column].Reset()
                 | _ -> ()
             )
+            |> ignore
+        base.Init(parent)
 
     override this.Update(elapsed_ms, moved) =
         base.Update(elapsed_ms, moved)
@@ -66,11 +68,11 @@ type InputMeter(config: HudConfig, state: PlayState) =
             let color = Color.FromArgb(key_alpha, r, g, b)
             Render.rect box color
             if config.InputMeterShowKeybinds then
-                Text.fill(Style.font, binds.[k].ToString(), box, config.InputMeterKeybindColor, Alignment.CENTER)          
+                Text.fill(Style.font, binds.[k].ToString(), box, config.InputMeterKeybindColor, Alignment.CENTER)
             box <- box.Translate(column_width, 0.0f)
 
         if config.InputMeterShowInputs then
-            let recent_events = state.Scoring.EnumerateRecentInputs()
+            let recent_events = state.Scoring.EnumerateRecentFrames()
 
             let now = state.CurrentChartTime()
             let point (time: ChartTime) : float32 * Color =

@@ -3,7 +3,6 @@
 open Percyqaz.Flux.UI
 open Percyqaz.Flux.Graphics
 open Prelude
-open Prelude.Calculator
 open Prelude.Gameplay.Replays
 open Prelude.Gameplay.Scoring
 open Prelude.Skins.Noteskins
@@ -163,7 +162,7 @@ type Explosions(keys: int, noteskin: NoteskinConfig, state: PlayState) =
         | _ -> ()
 
     do
-        state.SubscribeEvents handle_event
+        state.Subscribe handle_event |> ignore
 
     override this.Draw() =
         let now = state.CurrentChartTime()
