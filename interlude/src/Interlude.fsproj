@@ -179,7 +179,6 @@
     <Compile Include="Features\Skins\Elements\Accuracy.fs" />
     <Compile Include="Features\Skins\Elements\ErrorBar.fs" />
     <Compile Include="Features\Skins\Elements\Judgement.fs" />
-    <Compile Include="Features\Skins\Elements\NoteCount.fs" />
     <Compile Include="Features\Skins\Elements\EarlyLate.fs" />
     <Compile Include="Features\Skins\Elements\Combo.fs" />
     <Compile Include="Features\Skins\Elements\ProgressPie.fs" />
@@ -216,7 +215,6 @@
     <Compile Include="Features\Skins\EditHUD\Configuration\Accuracy.fs" />
     <Compile Include="Features\Skins\EditHUD\Configuration\ErrorBar.fs" />
     <Compile Include="Features\Skins\EditHUD\Configuration\Judgement.fs" />
-    <Compile Include="Features\Skins\EditHUD\Configuration\Notecount.fs" />
     <Compile Include="Features\Skins\EditHUD\Configuration\EarlyLate.fs" />
     <Compile Include="Features\Skins\EditHUD\Configuration\HudGraph.fs" />
     <Compile Include="Features\Skins\EditHUD\Configuration\Combo.fs" />
