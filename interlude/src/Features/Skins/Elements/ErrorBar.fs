@@ -17,6 +17,7 @@ type private ErrorBarEvent =
         Position: float32
         IsRelease: bool
         Judgement: int option
+        Column: int
     }
 
 type ErrorBar(config: HudConfig, state: PlayState) =
@@ -81,6 +82,7 @@ type ErrorBar(config: HudConfig, state: PlayState) =
                             Position = e.Delta / MAX_WINDOW * w * 0.5f
                             IsRelease = false
                             Judgement = e.Judgement |> Option.map fst
+                            Column = ev.Column
                         }
                 | Hold e ->
                     hits.Add
@@ -89,6 +91,7 @@ type ErrorBar(config: HudConfig, state: PlayState) =
                             Position = e.Delta / MAX_WINDOW * w * 0.5f
                             IsRelease = false
                             Judgement = e.Judgement |> Option.map fst
+                            Column = ev.Column
                         }
                 | Release e ->
                     hits.Add
@@ -97,6 +100,7 @@ type ErrorBar(config: HudConfig, state: PlayState) =
                             Position = e.Delta / MAX_WINDOW * w * ln_mult
                             IsRelease = true
                             Judgement = e.Judgement |> Option.map fst
+                            Column = ev.Column
                         }
                 | GhostTap e ->
                     match e.Judgement with
@@ -107,6 +111,7 @@ type ErrorBar(config: HudConfig, state: PlayState) =
                                 Position = -w * 0.5f
                                 IsRelease = false
                                 Judgement = Some j
+                                Column = ev.Column
                             }
                     | None -> ()
                 | DropHold
@@ -178,25 +183,37 @@ type ErrorBar(config: HudConfig, state: PlayState) =
     override this.Draw() =
         if window_opacity > 0 then
             this.DrawWindows window_opacity
-
+        let height_offset = 
+            if IS_ROTATED then
+                this.Bounds.Width / (float32 state.Chart.Keys)
+            else this.Bounds.Height / (float32 state.Chart.Keys)
         let r =
             match config.TimingDisplayRotation with
             | ErrorBarRotation.Clockwise ->
-                fun p1 p2 ->
+                fun p1 p2 p3 p4->
                 let center = this.Bounds.CenterY
-                Rect.FromEdges(this.Bounds.Left, center + p1, this.Bounds.Right, center + p2)
+                if config.TimingDisplaySplitByColumns = true && p3 <> -1f then
+                    Rect.FromEdges(this.Bounds.Left + p3 * p4, center + p1, this.Bounds.Left + (p3 + 1f) * p4, center + p2)
+                else
+                    Rect.FromEdges(this.Bounds.Left, center + p1, this.Bounds.Right, center + p2)
             | ErrorBarRotation.Anticlockwise ->
-                fun p1 p2 ->
+                fun p1 p2 p3 p4->
                 let center = this.Bounds.CenterY
-                Rect.FromEdges(this.Bounds.Left, center - p1, this.Bounds.Right, center - p2)
+                if config.TimingDisplaySplitByColumns = true && p3 <> -1f then
+                    Rect.FromEdges(this.Bounds.Right - p3 * p4, center - p1, this.Bounds.Right - (p3 + 1f) * p4, center - p2)
+                else
+                    Rect.FromEdges(this.Bounds.Left, center - p1, this.Bounds.Right, center - p2)
             | _ ->
-                fun p1 p2 ->
+                fun p1 p2 p3 p4->
                 let center = this.Bounds.CenterX
-                Rect.FromEdges(center + p1, this.Bounds.Top, center + p2, this.Bounds.Bottom)
+                if config.TimingDisplaySplitByColumns = true && p3 <> -1f then
+                    Rect.FromEdges(center + p1, this.Bounds.Bottom - p3 * p4, center + p2, this.Bounds.Bottom - (p3 + 1f) * p4)
+                else
+                    Rect.FromEdges(center + p1, this.Bounds.Top, center + p2, this.Bounds.Bottom)
 
         if config.TimingDisplayShowGuide then
             Render.rect
-                (r (-config.TimingDisplayThickness * config.TimingDisplayGuideThickness) (config.TimingDisplayThickness * config.TimingDisplayGuideThickness))
+                (r (-config.TimingDisplayThickness * config.TimingDisplayGuideThickness) (config.TimingDisplayThickness * config.TimingDisplayGuideThickness) -1f -1f)
                 Color.White
 
         let now = state.CurrentChartTime()
@@ -204,7 +221,7 @@ type ErrorBar(config: HudConfig, state: PlayState) =
         match config.TimingDisplayMovingAverageType with
         | ErrorBarMovingAverageType.ReplaceBars ->
             Render.rect
-                (r (moving_average.Value - config.TimingDisplayThickness) (moving_average.Value + config.TimingDisplayThickness))
+                (r (moving_average.Value - config.TimingDisplayThickness) (moving_average.Value + config.TimingDisplayThickness) -1f (height_offset * (float32 state.Chart.Keys)))
                 config.TimingDisplayMovingAverageColor
         | ErrorBarMovingAverageType.Arrow ->
             let quad =
@@ -240,7 +257,7 @@ type ErrorBar(config: HudConfig, state: PlayState) =
         | _ -> ()
 
         for hit in hits do
-            let rect = r (hit.Position - config.TimingDisplayThickness) (hit.Position + config.TimingDisplayThickness)
+            let rect = r (hit.Position - config.TimingDisplayThickness) (hit.Position + config.TimingDisplayThickness) (float32 hit.Column) height_offset
             let color =
                 match hit.Judgement with
                 | None ->
@@ -258,7 +275,11 @@ type ErrorBar(config: HudConfig, state: PlayState) =
                 Render.rect
                     (
                         if hit.IsRelease then
-                            if IS_ROTATED then
+                            if IS_ROTATED && config.TimingDisplaySplitByColumns = true then
+                                rect.ExpandX(config.TimingDisplayReleasesExtraHeight / float32 state.Chart.Keys)
+                            else if IS_ROTATED = false && config.TimingDisplaySplitByColumns = true then
+                                rect.ExpandY(config.TimingDisplayReleasesExtraHeight / float32 state.Chart.Keys)
+                            else if IS_ROTATED then
                                 rect.ExpandX(config.TimingDisplayReleasesExtraHeight)
                             else
                                 rect.ExpandY(config.TimingDisplayReleasesExtraHeight)

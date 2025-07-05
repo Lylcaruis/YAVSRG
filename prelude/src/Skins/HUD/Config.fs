@@ -153,7 +153,8 @@ type HudConfig =
         TimingDisplayMovingAverageSensitivity: float32
         TimingDisplayMovingAverageColor: Color
         TimingDisplayRotation: ErrorBarRotation
-
+        TimingDisplaySplitByColumns: bool
+        
         ComboEnabled: bool
         ComboPosition: HudPosition
         ComboLampColors: bool
@@ -303,6 +304,7 @@ type HudConfig =
             TimingDisplayMovingAverageSensitivity = 0.75f
             TimingDisplayMovingAverageColor = Color.Aqua
             TimingDisplayRotation = ErrorBarRotation.Normal
+            TimingDisplaySplitByColumns = false
 
             ComboEnabled = true
             ComboPosition =

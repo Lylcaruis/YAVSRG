@@ -35,7 +35,7 @@ type ErrorBarPage() =
     let moving_average_type = Setting.simple config.TimingDisplayMovingAverageType
     let moving_average_sensitivity = config.TimingDisplayMovingAverageSensitivity |> Setting.bounded (0.01f, 1.0f)
     let moving_average_color = Setting.simple config.TimingDisplayMovingAverageColor
-
+    let split_by_columns = Setting.simple config.TimingDisplaySplitByColumns
     member this.SaveChanges() =
         Skins.save_hud_config
             { Content.HUD with
@@ -51,6 +51,7 @@ type ErrorBarPage() =
                 TimingDisplayMovingAverageSensitivity = moving_average_sensitivity.Value
                 TimingDisplayMovingAverageColor = moving_average_color.Value
                 TimingDisplayRotation = rotation.Value
+                TimingDisplaySplitByColumns = split_by_columns.Value
                 TimingDisplayPosition =
                     if
                         (Content.HUD.TimingDisplayRotation <> ErrorBarRotation.Normal) <>
@@ -113,17 +114,21 @@ type ErrorBarPage() =
                     )
                 )
                     .Help(Help.Info("hud.error_bar.moving_average_type"))
-                    .Pos(18)
+                    .Pos(18),
+                PageSetting(%"hud.error_bar.splitbycolumns", Checkbox split_by_columns)
+                    .Help(Help.Info("hud.error_bar.moving_average_color"))
+                    .Pos(20)
             )
             .WithConditional(
                 (fun () -> moving_average_type.Value <> ErrorBarMovingAverageType.None),
 
                 PageSetting(%"hud.error_bar.moving_average_sensitivity", Slider.Percent(moving_average_sensitivity, Step = 0.01f))
                     .Help(Help.Info("hud.error_bar.moving_average_sensitivity"))
-                    .Pos(20),
+                    .Pos(22),
                 PageSetting(%"hud.error_bar.moving_average_color", ColorPicker(%"hud.error_bar.moving_average_color", moving_average_color, true))
                     .Help(Help.Info("hud.error_bar.moving_average_color"))
-                    .Pos(22)
+                    .Pos(24)
+
             )
 
     override this.Title = %"hud.error_bar"
