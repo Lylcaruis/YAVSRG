@@ -38,7 +38,7 @@ type ScoreScreen(score_info: ScoreInfo, results: ImprovementFlags * SessionXPGai
         |> ref
 
     let graph = new ScoreGraph(score_info, stats)
-
+  //  let bar = new ScoreBar(score_info, stats)
     let refresh () =
         personal_bests := ImprovementFlags.None
 
@@ -59,6 +59,7 @@ type ScoreScreen(score_info: ScoreInfo, results: ImprovementFlags * SessionXPGai
             score_info,
             played_just_now,
             graph,
+ //z           bar,
             refresh
         )
             .Position(Position.SlicePercentB(0.35f))

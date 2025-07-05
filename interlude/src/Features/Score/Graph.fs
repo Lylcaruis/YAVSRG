@@ -116,7 +116,7 @@ and ScoreGraph(score_info: ScoreInfo, stats: ScoreScreenStats ref) =
     let mutable snapshot_index = 0
     let mutable show_slice_info = false
 
-    let THICKNESS = 5f
+    let THICKNESS = 4f
     let HTHICKNESS = THICKNESS * 0.5f
 
     let BOX_HEIGHT = 250.0f
@@ -483,7 +483,7 @@ and ScoreGraph(score_info: ScoreInfo, stats: ScoreScreenStats ref) =
             let y_func (snapshot: GraphPoint) = (pa snapshot - min_ratio) / (max_ratio - min_ratio) |> float32
             this.PlotLine(y_func, line_color)
 
-        | _ -> ()
+        | _ -> ()   
 
     member private this.DrawHits() =
         let events = score_info.Scoring.Events
